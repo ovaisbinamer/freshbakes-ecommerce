@@ -62,11 +62,20 @@ export default function Home() {
         className="bg-white border-b border-stone-200 py-20 md:py-32 lg:py-40 px-6"
       >
         <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
+          <motion.span 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.1, duration: 0.8 }}
+            className="text-xs md:text-sm font-bold uppercase tracking-[0.3em] text-stone-400 block mb-6"
+          >
+            Handcrafted since 2015
+          </motion.span>
+
           <motion.h1 
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-5xl md:text-8xl lg:text-9xl font-black text-stone-900 leading-none mb-8 tracking-tighter"
+            className="font-[family-name:var(--font-playfair)] text-5xl md:text-8xl lg:text-9xl font-black text-stone-900 leading-none mb-8 tracking-tighter"
           >
             Morning Cravings, <br className="hidden md:block" /> Cured.
           </motion.h1>
@@ -77,7 +86,7 @@ export default function Home() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-base md:text-2xl lg:text-3xl text-stone-600 leading-relaxed max-w-3xl mx-auto"
           >
-            <p>At <span className="text-amber-700 font-bold">FreshBakes</span>, we believe that the best things in life are simple, honest, and made by hand.</p>
+            <p>At <span className="text-amber-700 font-bold font-[family-name:var(--font-playfair)]">FreshBakes</span>, we believe that real food should be honest and filled with love. We spend years perfecting our slow-fermentation process to bring you the perfect bite.</p>
           </motion.div>
 
           <motion.div 
@@ -97,15 +106,15 @@ export default function Home() {
       <section className="bg-stone-900 text-stone-300 py-12 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-stone-700">
           <div className="pt-8 md:pt-0 px-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-2">Baked Fresh at 4 AM</h4>
+            <h4 className="font-[family-name:var(--font-playfair)] text-white font-bold text-xl mb-2">Baked Fresh at 4 AM</h4>
             <p className="text-xs md:text-sm leading-relaxed">Our ovens fire up before the city wakes to ensure maximum freshness.</p>
           </div>
           <div className="pt-8 md:pt-0 px-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-2">100% Organic Grains</h4>
+            <h4 className="font-[family-name:var(--font-playfair)] text-white font-bold text-xl mb-2">100% Organic Grains</h4>
             <p className="text-xs md:text-sm leading-relaxed">We source directly from local, sustainable farms with zero additives.</p>
           </div>
           <div className="pt-8 md:pt-0 px-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-2">Same-Day Delivery</h4>
+            <h4 className="font-[family-name:var(--font-playfair)] text-white font-bold text-xl mb-2">Same-Day Delivery</h4>
             <p className="text-xs md:text-sm leading-relaxed">Order by 10 AM for guaranteed fresh delivery straight to your door.</p>
           </div>
         </div>
@@ -148,7 +157,7 @@ export default function Home() {
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-12 h-12 border-4 border-stone-200 border-t-amber-700 rounded-full animate-spin mb-4"></div>
-            <p className="text-stone-500 font-bold uppercase tracking-widest text-sm">Firing up the ovens...</p>
+            <p className="font-[family-name:var(--font-caveat)] text-stone-500 text-3xl">Firing up the ovens...</p>
           </div>
         )}
 
@@ -167,11 +176,7 @@ export default function Home() {
                   href={`/product/${product.id}`} 
                   className="group bg-white border border-stone-200 flex flex-col h-full hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden"
                 >
-                  {/* IMAGE CONTAINER
-                      - Uses inline styles for height so no Tailwind purging or specificity issue can override it
-                      - position: relative so the img can be absolute inside
-                      - overflow: hidden clips the hover scale effect cleanly
-                  */}
+                  {/* IMAGE CONTAINER */}
                   <div
                     className="relative bg-stone-100 border-b border-stone-100 flex-shrink-0 overflow-hidden"
                     style={{ height: '250px', minHeight: '250px', maxHeight: '250px' }}
@@ -207,8 +212,8 @@ export default function Home() {
                   </div>
                   
                   <div className="p-6 md:p-8 flex flex-col flex-grow">
-                    <h3 className="text-xl md:text-2xl font-black text-stone-900 mb-2 tracking-tight">{product.name}</h3>
-                    <p className="text-stone-500 text-sm md:text-base leading-relaxed mb-8 italic">{product.category}</p>
+                    <p className="font-[family-name:var(--font-caveat)] text-2xl text-amber-700 mb-1">{product.category}</p>
+                    <h3 className="font-[family-name:var(--font-playfair)] text-xl md:text-2xl font-black text-stone-900 mb-6 tracking-tight">{product.name}</h3>
                     
                     <div className="mt-auto flex items-center justify-between pt-6 border-t border-stone-100">
                       <span className="font-black text-xl md:text-2xl text-stone-900">${Number(product.price).toFixed(2)}</span>
@@ -228,7 +233,7 @@ export default function Home() {
         
         {!isLoading && filteredProducts.length === 0 && (
           <div className="text-center py-20">
-             <p className="text-stone-400 font-bold text-xl">No bakes found for "{searchTerm}".</p>
+             <p className="font-[family-name:var(--font-playfair)] text-stone-400 font-bold text-2xl">No bakes found for "{searchTerm}".</p>
           </div>
         )}
       </section>
@@ -236,7 +241,8 @@ export default function Home() {
       {/* NEWSLETTER SIGNUP */}
       <section className="bg-amber-50 border-y border-amber-100 py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-black text-stone-900 mb-6 tracking-tight">Join the Bread Club</h2>
+          <span className="font-[family-name:var(--font-caveat)] text-4xl text-amber-700 block mb-2">Stay close</span>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-5xl font-black text-stone-900 mb-6 tracking-tight">Join the Bread Club</h2>
           <p className="text-stone-600 mb-10 text-base md:text-lg">Subscribe to get secret menu drops, baking tips, and 10% off your first online order.</p>
           <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => e.preventDefault()}>
             <input 
@@ -254,17 +260,17 @@ export default function Home() {
       {/* 4. STORY SECTION */}
       <section className="bg-white py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
-          <h2 className="text-4xl md:text-6xl font-black text-stone-900 mb-10 tracking-tight">Big Flavors Baked in the City</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-6xl font-black text-stone-900 mb-10 tracking-tight">Our Process & Promise</h2>
           
           <div className="space-y-8 text-stone-600 leading-relaxed text-base md:text-2xl">
             <p>
-              Our story isn't just about baking; it's about passion, community, and the persistent pursuit of the perfect bite. We started as a tiny dream in a neighborhood kitchen, driven by the simple belief that real food should be honest and filled with love.
+              Our story isn't just about baking; it's about passion, community, and the persistent pursuit of the perfect bite. We treat every loaf, cookie, and pastry as a unique creation.
             </p>
-            <p className="font-bold text-stone-900 text-lg md:text-3xl">
-              Since 2015, we've remained steadfast in our mission: to bake real, artisan goods with simple ingredients.
+            <p className="font-bold text-stone-900 text-lg md:text-3xl font-[family-name:var(--font-playfair)]">
+              For us, time is the secret ingredient.
             </p>
             <p>
-              We spend years perfecting our slow-fermentation process, meticulously sourcing local, organic ingredients, and treating every loaf, cookie, and pastry as a unique creation. For us, time is the secret ingredient that gives our bakes their rich, complex flavor and impeccable texture.
+              We spend years perfecting our slow-fermentation process and meticulously sourcing local, organic ingredients. This commitment gives our bakes their rich, complex flavor and impeccable texture.
             </p>
           </div>
         </div>
