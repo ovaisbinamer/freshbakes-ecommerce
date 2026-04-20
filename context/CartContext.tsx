@@ -7,6 +7,7 @@ const CartContext = createContext<any>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // 1. LOAD cart from localStorage on startup
   useEffect(() => {
@@ -59,7 +60,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, decreaseQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, decreaseQuantity, removeFromCart, clearCart, isDrawerOpen, setIsDrawerOpen }}>
       {children}
     </CartContext.Provider>
   );

@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"; // <-- Added 'use' here
 import Link from "next/link";
 import { useCart } from "../../../context/CartContext";
-import { supabase } from "../../supabase"; 
+import { products as localProducts } from "../../data/products"; 
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,23 +18,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchProduct() {
-      // Use the safely unwrapped 'id' here
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id) 
-        .single(); 
-        
-      if (error) {
-        console.error("Error fetching product:", error);
-      } else if (data) {
-        setProduct(data);
-      }
+    const timer = setTimeout(() => {
+      const foundProduct = localProducts.find((p) => p.id === Number(id));
+      setProduct(foundProduct || null);
       setIsLoading(false);
-    }
-    
-    fetchProduct();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [id]); // <-- Use the safely unwrapped 'id' here too
 
   const handleAddToCart = () => {

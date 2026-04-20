@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { cart } = useCart();
+  const { cart, setIsDrawerOpen } = useCart();
   const pathname = usePathname();
 
   // Calculate total items in cart
@@ -42,7 +42,11 @@ export default function Navbar() {
           <Link href="/" className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors">Home</Link>
           <Link href="/#menu" className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors">Menu</Link>
           
-          <Link href="/cart" className="flex items-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-amber-700 transition-colors shadow-sm">
+          <Link 
+            href="/cart" 
+            onClick={(e) => { e.preventDefault(); setIsDrawerOpen(true); }}
+            className="flex items-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-amber-700 transition-colors shadow-sm"
+          >
             <span className="text-xs font-bold uppercase tracking-widest">Cart</span>
             {cartCount > 0 && (
               <span className="bg-white text-stone-900 text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full">
@@ -55,7 +59,11 @@ export default function Navbar() {
         {/* 3. MOBILE CONTROLS (Hidden on desktop) */}
         <div className="flex items-center gap-4 md:hidden z-50">
           {/* Quick Cart Button for Mobile */}
-          <Link href="/cart" className="flex items-center justify-center w-10 h-10 bg-stone-200 rounded-full relative">
+          <Link 
+            href="/cart" 
+            onClick={(e) => { e.preventDefault(); setIsDrawerOpen(true); }}
+            className="flex items-center justify-center w-10 h-10 bg-stone-200 rounded-full relative"
+          >
             <svg className="w-4 h-4 text-stone-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full">
@@ -90,7 +98,11 @@ export default function Navbar() {
             <div className="flex flex-col px-6 py-8 gap-6">
               <Link href="/" className="text-2xl font-black text-stone-900 tracking-tight border-b border-stone-200 pb-4">Home</Link>
               <Link href="/#menu" className="text-2xl font-black text-stone-900 tracking-tight border-b border-stone-200 pb-4">Menu</Link>
-              <Link href="/cart" className="flex items-center justify-between text-2xl font-black text-stone-900 tracking-tight pt-2">
+              <Link 
+                href="/cart" 
+                onClick={(e) => { e.preventDefault(); setIsOpen(false); setIsDrawerOpen(true); }}
+                className="flex items-center justify-between text-2xl font-black text-stone-900 tracking-tight pt-2"
+              >
                 <span>View Cart</span>
                 {cartCount > 0 && (
                   <span className="bg-amber-600 text-white text-sm font-black px-4 py-1.5 rounded-full">

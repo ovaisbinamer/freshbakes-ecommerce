@@ -3,10 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
-import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "./supabase"; 
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import TiltCard from "../components/TiltCard";
+import MagneticButton from "../components/MagneticButton";
+import { products as localProducts } from "./data/products"; 
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+
   const { addToCart } = useCart();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   
@@ -19,23 +30,15 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const categories = ["All", "Breads", "Pastries", "Sweets"];
 
-  // LIVE FETCH FROM SUPABASE
+  // LIVE FETCH FROM LOCAL DATA
   useEffect(() => {
-    async function fetchProducts() {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: true });
-        
-      if (error) {
-        console.error("Error fetching products:", error);
-      } else if (data) {
-        setProducts(data);
-      }
+    // Simulate a short loading delay for effect
+    const timer = setTimeout(() => {
+      setProducts(localProducts);
       setIsLoading(false);
-    }
+    }, 500);
     
-    fetchProducts();
+    return () => clearTimeout(timer);
   }, []);
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
@@ -55,52 +58,73 @@ export default function Home() {
     <main className="min-h-screen bg-stone-50 font-sans overflow-x-hidden">
       
       {/* 1. HERO SECTION */}
-      <motion.section 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="bg-white border-b border-stone-200 py-20 md:py-32 lg:py-40 px-6"
-      >
-        <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
-          <motion.span 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.1, duration: 0.8 }}
-            className="text-xs md:text-sm font-bold uppercase tracking-[0.3em] text-stone-400 block mb-6"
-          >
-            Handcrafted since 2015
-          </motion.span>
+      {/* 1. HERO SECTION */}
+      <section ref={heroRef} className="relative w-full h-[100vh] min-h-[700px] overflow-hidden bg-stone-900 border-b border-stone-200 flex items-center justify-center">
+        {/* Parallax Background Image */}
+        <motion.div 
+          style={{ y: heroY }}
+          className="absolute inset-0 w-full h-full"
+        >
+          <img 
+            src="https://images.pexels.com/photos/1756061/pexels-photo-1756061.jpeg?auto=compress&cs=tinysrgb&w=2000"
+            alt="Artisanal Bakery"
+            className="w-full h-full object-cover opacity-90"
+          />
+        </motion.div>
+        
+        {/* Glassmorphism Overlay */}
+        <div className="absolute inset-0 bg-stone-950/60 backdrop-blur-[2px]"></div>
 
-          <motion.h1 
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="font-[family-name:var(--font-playfair)] text-5xl md:text-8xl lg:text-9xl font-black text-stone-900 leading-none mb-8 tracking-tighter"
-          >
-            Morning Cravings, <br className="hidden md:block" /> Cured.
-          </motion.h1>
-          
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-base md:text-2xl lg:text-3xl text-stone-600 leading-relaxed max-w-3xl mx-auto"
-          >
-            <p>At <span className="text-amber-700 font-bold font-[family-name:var(--font-playfair)]">FreshBakes</span>, we believe that real food should be honest and filled with love. We spend years perfecting our slow-fermentation process to bring you the perfect bite.</p>
-          </motion.div>
+        <motion.div 
+          style={{ opacity }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="relative z-10 w-full py-20 px-6"
+        >
+          <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
+            <motion.span 
+              initial={{ opacity: 0, y: -10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 0.1, duration: 0.8 }}
+              className="text-xs md:text-sm font-bold uppercase tracking-[0.3em] text-white/80 block mb-6 drop-shadow-md"
+            >
+              Handcrafted since 2015
+            </motion.span>
 
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-12 md:mt-16"
-          >
-            <Link href="#menu" className="inline-block bg-stone-900 text-white font-bold uppercase tracking-[0.2em] text-xs md:text-base px-10 py-5 md:px-12 md:py-6 hover:bg-amber-700 transition-colors shadow-2xl">
-              Shop The Menu
-            </Link>
-          </motion.div>
-        </div>
-      </motion.section>
+            <motion.h1 
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="font-[family-name:var(--font-playfair)] text-5xl md:text-8xl lg:text-9xl font-black text-white leading-none mb-8 tracking-tighter drop-shadow-2xl"
+            >
+              Morning Cravings, <br className="hidden md:block" /> Cured.
+            </motion.h1>
+            
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-base md:text-2xl lg:text-3xl text-stone-200 leading-relaxed max-w-3xl mx-auto drop-shadow-md"
+            >
+              <p>At <span className="text-amber-500 font-bold font-[family-name:var(--font-playfair)]">FreshBakes</span>, we believe that real food should be honest and filled with love. We spend years perfecting our slow-fermentation process to bring you the perfect bite.</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mt-12 md:mt-16"
+            >
+              <MagneticButton>
+                <Link href="#menu" className="inline-block bg-amber-600 text-white font-bold uppercase tracking-[0.2em] text-xs md:text-base px-10 py-5 md:px-12 md:py-6 hover:bg-white hover:text-stone-900 transition-colors shadow-2xl rounded-full">
+                  Shop The Menu
+                </Link>
+              </MagneticButton>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
 
       {/* VALUE PROPOSITION BANNER */}
       <section className="bg-stone-900 text-stone-300 py-12 px-6">
@@ -172,7 +196,8 @@ export default function Home() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
               >
-                <Link 
+                <TiltCard>
+                  <Link 
                   href={`/product/${product.id}`} 
                   className="group bg-white border border-stone-200 flex flex-col h-full hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden"
                 >
@@ -226,6 +251,7 @@ export default function Home() {
                     </div>
                   </div>
                 </Link>
+                </TiltCard>
               </motion.div>
             ))}
           </AnimatePresence>
