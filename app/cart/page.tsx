@@ -7,15 +7,22 @@ import { useCart } from "../../context/CartContext";
 export default function CartPage() {
   const { cart, addToCart, decreaseQuantity, removeFromCart } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Price Calculation
+  // Price Calculation & Free Shipping Threshold ($35.00)
   const subtotal = cart.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
-  const deliveryFee = subtotal > 0 ? 5.00 : 0;
+  const remaining = Math.max(0, 35 - subtotal);
+  const progress = Math.min(100, (subtotal / 35) * 100);
+  const freeShippingMessage = subtotal >= 35
+    ? "🎉 You've unlocked FREE delivery!"
+    : `Add $${remaining.toFixed(2)} more for FREE delivery!`;
+  const deliveryFee = (subtotal >= 35 || subtotal === 0) ? 0 : 5.00;
   const total = subtotal + deliveryFee;
 
   // STRIPE CHECKOUT FUNCTION
   const handleCheckout = async () => {
     setIsCheckingOut(true);
+    setErrorMessage(null);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -23,13 +30,23 @@ export default function CartPage() {
         body: JSON.stringify({ cart }),
       });
 
+      if (!response.ok) {
+        setErrorMessage("Checkout failed. Please try again.");
+        setIsCheckingOut(false);
+        return;
+      }
+
       const data = await response.json();
 
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setErrorMessage("Checkout failed. Please try again.");
+        setIsCheckingOut(false);
       }
     } catch (error) {
       console.error("Checkout failed:", error);
+      setErrorMessage("Checkout failed. Please try again.");
       setIsCheckingOut(false);
     }
   };
@@ -38,6 +55,24 @@ export default function CartPage() {
     <main className="min-h-screen bg-stone-50 py-16 px-6">
       <div className="max-w-6xl mx-auto">
         
+        {/* Checkout Step Indicator */}
+        <div className="mb-10 flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold">
+          <div className="flex items-center gap-2 text-stone-900 bg-amber-100/80 px-4 py-2 rounded-full border border-amber-200 shadow-sm">
+            <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-xs flex items-center justify-center font-black">1</span>
+            <span>Bag Selection</span>
+          </div>
+          <span className="text-stone-300 font-normal">→</span>
+          <div className="flex items-center gap-2 text-stone-400 px-3 py-1.5">
+            <span className="w-5 h-5 rounded-full bg-stone-200 text-stone-500 text-xs flex items-center justify-center font-bold">2</span>
+            <span>Summary</span>
+          </div>
+          <span className="text-stone-300 font-normal">→</span>
+          <div className="flex items-center gap-2 text-stone-400 px-3 py-1.5">
+            <span className="w-5 h-5 rounded-full bg-stone-200 text-stone-500 text-xs flex items-center justify-center font-bold">3</span>
+            <span>Secure Checkout</span>
+          </div>
+        </div>
+
         <header className="mb-12 flex items-center justify-between border-b border-stone-200 pb-8">
           <div>
             <h1 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tighter">Your Bag</h1>
@@ -48,22 +83,55 @@ export default function CartPage() {
           </Link>
         </header>
 
+        {errorMessage && (
+          <div className="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl flex items-center justify-between shadow-sm">
+            <span className="font-bold text-sm">{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)} className="text-red-500 hover:text-red-700 font-bold text-xs uppercase tracking-wider ml-4">
+              Dismiss
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-12 items-start">
           
           {/* LEFT: CART ITEMS */}
           <div className="flex-grow w-full space-y-6">
             {cart.length === 0 ? (
-              <div className="bg-white p-16 md:p-24 text-center rounded-3xl border border-stone-100 shadow-sm">
-                <h2 className="text-3xl font-black text-stone-900 mb-6 tracking-tight">Your oven is empty.</h2>
-                <Link href="/#menu" className="inline-block bg-stone-900 text-white px-10 py-5 font-black uppercase text-xs tracking-widest rounded-xl hover:bg-amber-700 transition-colors shadow-lg">
-                  Browse the Bakery
-                </Link>
+              <div className="bg-white p-12 md:p-16 text-center rounded-3xl border border-stone-100 shadow-sm">
+                <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                  🥐
+                </div>
+                <h2 className="text-3xl font-black text-stone-900 mb-3 tracking-tight">Your oven is empty.</h2>
+                <p className="text-stone-500 mb-8 max-w-md mx-auto text-sm font-medium">
+                  Looks like you haven't added any fresh baked goods yet. Explore our selection to fill your bag!
+                </p>
+                
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link 
+                    href="/#menu?category=breads" 
+                    className="bg-stone-100 hover:bg-stone-900 hover:text-white text-stone-900 px-6 py-3 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-stone-200"
+                  >
+                    🥖 Browse Breads
+                  </Link>
+                  <Link 
+                    href="/#menu?category=pastries" 
+                    className="bg-stone-100 hover:bg-stone-900 hover:text-white text-stone-900 px-6 py-3 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-stone-200"
+                  >
+                    🥐 Browse Pastries
+                  </Link>
+                  <Link 
+                    href="/#menu?category=sweets" 
+                    className="bg-stone-100 hover:bg-stone-900 hover:text-white text-stone-900 px-6 py-3 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-stone-200"
+                  >
+                    🍰 Browse Sweets
+                  </Link>
+                </div>
               </div>
             ) : (
               cart.map((item: any) => (
                 <div key={item.id} className="flex flex-col sm:flex-row gap-6 bg-white p-6 rounded-3xl border border-stone-100 shadow-sm">
                   
-                  {/* FIX 1: Locked Image Container (It will NEVER stretch now) */}
+                  {/* Locked Image Container */}
                   <div className="w-full sm:w-40 h-48 sm:h-40 relative flex-shrink-0 bg-stone-100 rounded-2xl overflow-hidden">
                     {item.image ? (
                         <img 
@@ -114,8 +182,21 @@ export default function CartPage() {
           {/* RIGHT: BILLING SUMMARY */}
           <div className="w-full lg:w-[420px] lg:sticky lg:top-10">
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-2xl border border-stone-100">
-              <h2 className="text-2xl font-black text-stone-900 mb-8 tracking-tight">Order Summary</h2>
+              <h2 className="text-2xl font-black text-stone-900 mb-6 tracking-tight">Order Summary</h2>
               
+              {/* Free Shipping Progress Bar */}
+              <div className="bg-amber-50/80 border border-amber-100 p-4 rounded-2xl mb-6">
+                <p className="text-xs font-bold text-amber-900 mb-2 text-center">
+                  {freeShippingMessage}
+                </p>
+                <div className="w-full h-2 bg-amber-200/60 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-amber-600 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-5 pb-8 border-b border-stone-100">
                 <div className="flex justify-between text-stone-500 font-medium">
                   <span>Subtotal</span>
@@ -123,7 +204,13 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-stone-500 font-medium">
                   <span>Bakery Delivery</span>
-                  <span className="text-stone-900 font-bold">${deliveryFee.toFixed(2)}</span>
+                  <span className="text-stone-900 font-bold">
+                    {deliveryFee === 0 && subtotal > 0 ? (
+                      <span className="text-amber-700 uppercase text-xs tracking-wider font-black">FREE</span>
+                    ) : (
+                      `$${deliveryFee.toFixed(2)}`
+                    )}
+                  </span>
                 </div>
               </div>
 
@@ -132,7 +219,7 @@ export default function CartPage() {
                 <span className="text-4xl md:text-5xl font-black text-stone-900 tracking-tighter">${total.toFixed(2)}</span>
               </div>
 
-              {/* FIX 2: Massive, un-squishable Checkout Button */}
+              {/* Checkout Button */}
               <button 
                 onClick={handleCheckout}
                 disabled={cart.length === 0 || isCheckingOut}
